@@ -13,16 +13,16 @@
    <center>
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
-            <MediaView fx:id="mediaView" fitHeight="400.0" fitWidth="600.0">
+            <MediaView fx:id="media_view" fitHeight="400.0" fitWidth="600.0">
                <StackPane.margin>
                   <Insets />
                </StackPane.margin></MediaView>
             <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <Slider fx:id="progressBar" />
+                  <Slider fx:id="progress_bar" />
                   <HBox>
                      <children>
-                        <Button mnemonicParsing="false" onAction="#chooseFileMethod" text="File">
+                        <Button mnemonicParsing="false" onAction="#chooseMediaFile" text="File">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -30,7 +30,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#deleteTime" text="&lt;&lt;&lt;">
+                        <Button mnemonicParsing="false" onAction="#backward10second" text="&lt;&lt;&lt;">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -38,7 +38,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#prev" text="Prev">
+                        <Button mnemonicParsing="false" onAction="#playPreviousMedia" text="Prev">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -46,7 +46,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="playButton" mnemonicParsing="false" onAction="#pausePlay" text="None">
+                        <Button fx:id="play_pause_button" mnemonicParsing="false" onAction="#mediaPlayPause" text="None">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -54,7 +54,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#next" text="Next">
+                        <Button mnemonicParsing="false" onAction="#playNextMedia" text="Next">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -62,7 +62,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#addTime" text="&gt;&gt;&gt;">
+                        <Button mnemonicParsing="false" onAction="#forward10second" text="&gt;&gt;&gt;">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>
@@ -70,7 +70,7 @@
                               <Insets bottom="5.0" left="15.0" right="15.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Slider fx:id="volumeSlider">
+                        <Slider fx:id="volume_slider">
                            <opaqueInsets>
                               <Insets />
                            </opaqueInsets>

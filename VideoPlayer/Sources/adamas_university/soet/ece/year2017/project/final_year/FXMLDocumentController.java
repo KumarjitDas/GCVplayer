@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -26,157 +28,182 @@ import javafx.util.Duration;
 
 public class FXMLDocumentController implements Initializable {
 
-	private List<String> mediaFileList;
-	private int currentMediaFileIndex;
+	private List<String> media_file_list;
+	private int current_media_file_index;
+	private boolean play_button_clicked;
 	
-	private MediaPlayer mediaPlayer;
 	@FXML
-	private MediaView mediaView;
+	private MediaPlayer media_player;
 	@FXML
-	private Slider progressBar;
+	private MediaView media_view;
 	@FXML
-	private Slider volumeSlider;
+	private Slider progress_bar;
 	@FXML
-	private Button playButton;
-
-	private boolean playButtonClicked = false;
+	private Slider volume_slider;
+	@FXML
+	private Button play_pause_button;
 	
-	private void playMedia(String mediaFileURI) {
-		if (mediaFileURI != null) {
-			Media media = new Media(mediaFileURI);
-			mediaPlayer = new MediaPlayer(media);
-			mediaView.setMediaPlayer(mediaPlayer);
+	private void playMedia(String media_file_uri) {
+		if (media_file_uri != null) {
+			Media media = new Media(media_file_uri);
+			media_player = new MediaPlayer(media);
+			media_view.setMediaPlayer(media_player);
 
-			DoubleProperty width = mediaView.fitWidthProperty();
-			DoubleProperty height = mediaView.fitHeightProperty();
-			width.bind(Bindings.selectDouble(mediaView.sceneProperty(), "width"));
-			height.bind(Bindings.selectDouble(mediaView.sceneProperty(), "height"));
+			DoubleProperty width = media_view.fitWidthProperty();
+			DoubleProperty height = media_view.fitHeightProperty();
+			width.bind(Bindings.selectDouble(media_view.sceneProperty(), "width"));
+			height.bind(Bindings.selectDouble(media_view.sceneProperty(), "height"));
 
-			mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+			media_player.currentTimeProperty().addListener(new ChangeListener<Duration>() {
 				@Override
 				public void changed(ObservableValue<? extends Duration> observableValue, Duration oldValue,
 						Duration newValue) {
-					progressBar.setValue(newValue.toSeconds());
+					progress_bar.setValue(newValue.toSeconds());
 				}
 			});
 
-			mediaPlayer.setOnReady(new Runnable() {
+			media_player.setOnReady(new Runnable() {
 
 				@Override
 				public void run() {
 					Duration total = media.getDuration();
-					progressBar.setMax(total.toSeconds());
+					progress_bar.setMax(total.toSeconds());
 				}
 			});
 
-			progressBar.setOnMousePressed(new EventHandler<MouseEvent>() {
+			progress_bar.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 				@Override
 				public void handle(MouseEvent event) {
-					mediaPlayer.seek(Duration.seconds(progressBar.getValue()));
+					media_player.seek(Duration.seconds(progress_bar.getValue()));
 
 				}
 			});
 
-			progressBar.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			progress_bar.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
 				@Override
 				public void handle(MouseEvent event) {
-					mediaPlayer.seek(Duration.seconds(progressBar.getValue()));
+					media_player.seek(Duration.seconds(progress_bar.getValue()));
 
 				}
 			});
 
-			volumeSlider.setValue(mediaPlayer.getVolume() * 100);
-			volumeSlider.valueProperty().addListener(new InvalidationListener() {
+			volume_slider.setValue(media_player.getVolume() * 100);
+			volume_slider.valueProperty().addListener(new InvalidationListener() {
 
 				@Override
 				public void invalidated(Observable event) {
-					mediaPlayer.setVolume(volumeSlider.getValue() / 100);
+					media_player.setVolume(volume_slider.getValue() / 100);
 				}
 			});
 			
-			playButtonClicked = true;
-			playButton.setText("Pause");
+			play_button_clicked = true;
+			play_pause_button.setText("Pause");
 
-			mediaPlayer.play();
+			media_player.play();
 
 		}
 	}
 
-	public void chooseFileMethod(ActionEvent event) {
-		mediaFileList = new ArrayList<String>();
+	public void chooseMediaFile(ActionEvent event) {
+		media_file_list = new ArrayList<String>();
 		File mediaFile = new FileChooser().showOpenDialog(null);
 
 		File parentFolder = new File(mediaFile.getParent());
 		for (File f: parentFolder.listFiles()) {
-			mediaFileList.add(f.getAbsolutePath());
+			media_file_list.add(f.getAbsolutePath());
 		}
 		
-		currentMediaFileIndex = mediaFileList.indexOf(mediaFile.getAbsolutePath());
+		current_media_file_index = media_file_list.indexOf(mediaFile.getAbsolutePath());
 		
 		playMedia(mediaFile.toURI().toString());
 	}
 
-	public void pausePlay(ActionEvent event) {
-		if (mediaPlayer != null) {
-			MediaPlayer.Status status = mediaPlayer.getStatus();
+	public void mediaPlayPause(ActionEvent event) {
+		Platform.runLater(() -> {
+			if (media_player != null) {
+				MediaPlayer.Status status = media_player.getStatus();
 
-			if (status == MediaPlayer.Status.PAUSED) {
-				mediaPlayer.play();
-			} else {
-				mediaPlayer.pause();
+				if (status == MediaPlayer.Status.PAUSED) {
+					media_player.play();
+				} else {
+					media_player.pause();
+				}
+				
+				if (play_button_clicked) {
+					play_button_clicked = false;
+					play_pause_button.setText("Play");
+				} else {
+					play_button_clicked = true;
+					play_pause_button.setText("Pause");
+				}
 			}
-			
-			if (playButtonClicked) {
-				playButtonClicked = false;
-				playButton.setText("Play");
-			} else {
-				playButtonClicked = true;
-				playButton.setText("Pause");
+		});
+	}
+
+	public void forward10second(ActionEvent event) {
+		Platform.runLater(() -> {
+			if (media_player != null) {
+				media_player.seek(media_player.getCurrentTime().add(Duration.seconds(10)));			
 			}
-		}
+		});
 	}
 
-	public void addTime(ActionEvent event) {
-		if (mediaPlayer != null) {
-			mediaPlayer.seek(mediaPlayer.getCurrentTime().add(Duration.seconds(10)));			
-		}
+	public void backward10second(ActionEvent event) {
+		Platform.runLater(() -> {
+			if (media_player != null) {
+				media_player.seek(media_player.getCurrentTime().add(Duration.seconds(-10)));			
+			}
+		});
 	}
 
-	public void deleteTime(ActionEvent event) {
-		if (mediaPlayer != null) {
-			mediaPlayer.seek(mediaPlayer.getCurrentTime().add(Duration.seconds(-10)));			
-		}
+	public void playPreviousMedia(ActionEvent event) {
+		Platform.runLater(() -> {
+			if (media_player != null && media_file_list.size() > 1) {
+				current_media_file_index = current_media_file_index <= 0 ?
+										media_file_list.size() - 1 : 
+										(current_media_file_index - 1);
+				File mediaFile = new File(media_file_list.get(current_media_file_index));
+				
+				media_player.stop();
+				playMedia(mediaFile.toURI().toString());			
+			}
+		});
 	}
 
-	public void prev(ActionEvent event) {
-		if (mediaPlayer != null && mediaFileList.size() > 1) {
-			currentMediaFileIndex = currentMediaFileIndex <= 0 ?
-									mediaFileList.size() - 1 : 
-									(currentMediaFileIndex - 1);
-			File mediaFile = new File(mediaFileList.get(currentMediaFileIndex));
-			
-			mediaPlayer.stop();
-			playMedia(mediaFile.toURI().toString());			
-		}
+	public void playNextMedia(ActionEvent event) {
+		Platform.runLater(() -> {
+			if (media_player != null && media_file_list.size() > 1) {
+				current_media_file_index = (current_media_file_index + 1) >= media_file_list.size() ?
+										0 :
+										(current_media_file_index + 1);
+				File mediaFile = new File(media_file_list.get(current_media_file_index));
+				
+				media_player.stop();
+				playMedia(mediaFile.toURI().toString());			
+			}
+		});
 	}
-
-	public void next(ActionEvent event) {
-		if (mediaPlayer != null && mediaFileList.size() > 1) {
-			currentMediaFileIndex = (currentMediaFileIndex + 1) >= mediaFileList.size() ?
-									0 : 
-									(currentMediaFileIndex + 1);
-			File mediaFile = new File(mediaFileList.get(currentMediaFileIndex));
-			
-			mediaPlayer.stop();
-			playMedia(mediaFile.toURI().toString());			
-		}
+	
+	public void setMediaVolume(double volume) {
+		this.volume_slider.setValue(this.volume_slider.getValue() + volume);
+		this.media_player.setVolume(this.volume_slider.getValue() / 100);
 	}
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		this.play_button_clicked = false;
+		
+		try {
+			Main.python_executor = new PythonExecutor();
+			Main.python_executor.start();
 
+			Main.temp_file_reader = new TempFileReader(this);
+			Main.temp_file_reader.start();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
-
 }
